@@ -217,248 +217,6 @@
     }
     
     </style>
-    <script>
-        // Định nghĩa mapping giữa ID nội dung và URL
-        const urlMappings = {
-            'home': '/',
-            'about': '/gioi-thieu',
-            'fastloan': '/vay-tien-nhanh',
-            'credit': '/the-tin-dung',
-            'news': '/tin-tuc',
-            'contact': '/lien-he',
-            'dieukhoan': '/dieu-khoan-su-dung',
-            'chinhsach': '/chinh-sach-bao-mat'
-        };
-        
-        // Định nghĩa mapping ngược từ URL về ID nội dung
-        const contentMappings = {};
-        for (const [id, url] of Object.entries(urlMappings)) {
-            contentMappings[url] = id;
-        }
-        
-        // Hàm hiển thị nội dung không thêm vào lịch sử (dùng cho sự kiện popstate)
-        function showContentWithoutHistory(id) {
-            console.log("Hiển thị nội dung cho:", id, "(không thêm lịch sử)");
-            
-            // Ẩn tất cả các phần nội dung
-            const sections = document.querySelectorAll('.content-section');
-            sections.forEach(section => section.classList.add('hidden'));
-            
-            // Hiển thị phần được chọn
-            const selectedSection = document.getElementById(id);
-            if (selectedSection) {
-                selectedSection.classList.remove('hidden');
-            } else {
-                console.error("Không tìm thấy phần nội dung với id:", id);
-            }
-
-            // Cập nhật trạng thái active cho menu
-            const links = document.querySelectorAll('.menu-link');
-            links.forEach(link => link.classList.remove('active'));
-            
-            const activeLink = document.getElementById(id + '-link');
-            if (activeLink) {
-                activeLink.classList.add('active');
-            }
-            
-            // Cập nhật tiêu đề trang
-            if (selectedSection) {
-                const pageTitle = selectedSection.querySelector('h2').textContent + ' - Vay Online';
-                document.title = pageTitle;
-            }
-        }
-        
-        // Hàm hiển thị nội dung và thêm vào lịch sử
-        function showContent(id) {
-            console.log("Hiển thị nội dung cho:", id);
-            
-            // Hiển thị nội dung
-            showContentWithoutHistory(id);
-            
-            // Cập nhật URL và thêm vào lịch sử
-            if (urlMappings[id]) {
-                const newUrl = urlMappings[id];
-                const pageTitle = document.getElementById(id).querySelector('h2').textContent + ' - Vay Online';
-                
-                // Cập nhật URL mà không tải lại trang
-                history.pushState({ id: id }, pageTitle, newUrl);
-            }
-        }
-        
-        // Hàm tải nội dung tin tức bằng AJAX
-        function loadNews(url, title, addToHistory = true) {
-            console.log("Đang tải tin tức từ URL:", url, "addToHistory:", addToHistory);
-            
-            // Hiển thị phần tin tức trước
-            const newsDetailSection = document.getElementById('news-detail');
-            if (!newsDetailSection) {
-                console.error("Không tìm thấy phần news-detail");
-                return false;
-            }
-            
-            // Hiển thị phần chi tiết tin tức
-            const sections = document.querySelectorAll('.content-section');
-            sections.forEach(section => section.classList.add('hidden'));
-            newsDetailSection.classList.remove('hidden');
-            
-            // Cập nhật menu active
-            const links = document.querySelectorAll('.menu-link');
-            links.forEach(link => link.classList.remove('active'));
-            const newsLink = document.getElementById('news-link');
-            if (newsLink) {
-                newsLink.classList.add('active');
-            }
-            
-            // Hiển thị trạng thái đang tải
-            document.getElementById('news-detail-content').innerHTML = 
-                '<div class="flex justify-center items-center h-64"><div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-500"></div></div>';
-            
-            // Tạo đường dẫn URL thân thiện từ URL tin tức
-            const newsSlug = url.split('/').pop().replace('.html', '');
-            const friendlyUrl = '/tin-tuc/' + newsSlug;
-            
-            // Gửi yêu cầu AJAX
-            fetch(url)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.text();
-                })
-                .then(html => {
-                    console.log("Đã nhận phản hồi từ server");
-                    
-                    // Trích xuất nội dung từ file tin tức
-                    const parser = new DOMParser();
-                    const doc = parser.parseFromString(html, 'text/html');
-                    const content = doc.querySelector('.news-content') || doc.body;
-                    
-                    // Cập nhật nội dung
-                    document.getElementById('news-detail-content').innerHTML = '';
-                    document.getElementById('news-detail-content').appendChild(content.cloneNode(true));
-                    document.getElementById('news-title').textContent = title;
-                    
-                    // Cập nhật tiêu đề trang
-                    document.title = title + ' - Vay Online';
-                    
-                    // Chỉ cập nhật URL và thêm vào lịch sử nếu addToHistory = true
-                    if (addToHistory) {
-                        // Cập nhật URL thân thiện và thêm vào lịch sử
-                        history.pushState({ url: url, title: title, type: 'news' }, title, friendlyUrl);
-                    } else if (window.location.pathname !== friendlyUrl) {
-                        // Cập nhật URL nhưng không thêm vào lịch sử (replaceState thay vì pushState)
-                        history.replaceState({ url: url, title: title, type: 'news' }, title, friendlyUrl);
-                    }
-                    
-                    console.log("Đã cập nhật nội dung tin tức thành công");
-                })
-                .catch(error => {
-                    document.getElementById('news-detail-content').innerHTML = 
-                        '<div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded" role="alert">' +
-                        '<p>Không thể tải nội dung tin tức. Vui lòng thử lại sau.</p>' +
-                        '<p>Lỗi: ' + error.message + '</p>' +
-                        '</div>';
-                    console.error('Error loading news:', error);
-                });
-                
-            // Ngăn chặn hành vi mặc định của thẻ a
-            return false;
-        }
-        
-        // Theo dõi sự kiện popstate (khi người dùng nhấn nút back/forward của trình duyệt)
-        window.addEventListener('popstate', function(event) {
-            console.log("Sự kiện popstate được kích hoạt:", event.state);
-            
-            // Xác định URL hiện tại dựa trên window.location
-            const currentPath = window.location.pathname;
-            
-            // Xử lý dựa vào state được lưu trong history hoặc URL hiện tại
-            if (event.state && event.state.type === 'news') {
-                // Quay trở lại một tin tức cụ thể
-                loadNews(event.state.url, event.state.title, false); // false để không thêm lịch sử mới
-            } else if (event.state && event.state.id) {
-                // Quay trở lại một section
-                showContentWithoutHistory(event.state.id);
-            } else {
-                // Nếu không có state cụ thể, phân tích URL hiện tại
-                
-                // Kiểm tra nếu là URL tin tức
-                if (currentPath.startsWith('/tin-tuc/') && currentPath !== '/tin-tuc/') {
-                    const newsSlug = currentPath.split('/').pop();
-                    const newsUrl = '/news/' + newsSlug + '.html';
-                    
-                    // Tìm tin tức tương ứng
-                    const newsLinks = document.querySelectorAll('.news-item-link');
-                    let found = false;
-                    for (let link of newsLinks) {
-                        if (link.getAttribute('href').includes(newsSlug)) {
-                            loadNews(link.getAttribute('href'), link.querySelector('h3').textContent, false);
-                            found = true;
-                            break;
-                        }
-                    }
-                    
-                    // Nếu không tìm thấy tin tức, chuyển về danh sách tin
-                    if (!found) {
-                        showContentWithoutHistory('news');
-                    }
-                } else {
-                    // Tìm section tương ứng với URL hiện tại
-                    const sectionId = contentMappings[currentPath] || 'home';
-                    showContentWithoutHistory(sectionId);
-                }
-            }
-        });
-        
-        // Khởi tạo trạng thái ban đầu của trang khi tải
-        document.addEventListener('DOMContentLoaded', function() {
-            const currentPath = window.location.pathname;
-            
-            // Kiểm tra nếu là URL tin tức cụ thể
-            if (currentPath.startsWith('/tin-tuc/') && currentPath !== '/tin-tuc/') {
-                const newsSlug = currentPath.split('/').pop();
-                const newsUrl = '/news/' + newsSlug + '.html';
-                
-                // Tìm tin tức tương ứng
-                const newsLinks = document.querySelectorAll('.news-item-link');
-                let found = false;
-                for (let link of newsLinks) {
-                    if (link.getAttribute('href').includes(newsSlug)) {
-                        // Tải nội dung tin tức nhưng không thêm vào lịch sử
-                        loadNews(link.getAttribute('href'), link.querySelector('h3').textContent, false);
-                        found = true;
-                        break;
-                    }
-                }
-                
-                // Nếu không tìm thấy tin tức, chuyển hướng về danh sách tin
-                if (!found) {
-                    // Khởi tạo trạng thái ban đầu là trang danh sách tin tức
-                    showContentWithoutHistory('news');
-                    // Cập nhật URL mà không thêm vào lịch sử
-                    history.replaceState({ id: 'news' }, 'Tin tức - Vay Online', '/tin-tuc');
-                }
-            } else {
-                // Tìm section tương ứng với URL hiện tại
-                const sectionId = contentMappings[currentPath] || 'home';
-                
-                // Hiển thị nội dung tương ứng mà không thêm vào lịch sử
-                showContentWithoutHistory(sectionId);
-                
-                // Đảm bảo URL đúng với nội dung hiện tại
-                if (urlMappings[sectionId] && urlMappings[sectionId] !== currentPath) {
-                    history.replaceState({ id: sectionId }, document.title, urlMappings[sectionId]);
-                }
-            }
-            
-            // Khởi tạo trạng thái lịch sử ban đầu
-            if (history.state === null) {
-                const sectionId = contentMappings[currentPath] || 'home';
-                const currentTitle = document.title;
-                history.replaceState({ id: sectionId }, currentTitle, currentPath);
-            }
-        });
-    </script>
 </head>
 <body class="bg-gray-100">
     <header class="bg-green-600 text-white p-4 sticky top-0 z-50">
@@ -1349,8 +1107,384 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 });
 
-// Đảm bảo code chỉ chạy khi đã tồn tại các thành phần cần thiết
+// Định nghĩa mapping giữa ID nội dung và URL
+    const urlMappings = {
+        'home': '/',
+        'about': '/gioi-thieu',
+        'fastloan': '/vay-tien-nhanh',
+        'credit': '/the-tin-dung',
+        'news': '/tin-tuc',
+        'contact': '/lien-he',
+        'dieukhoan': '/dieu-khoan-su-dung',
+        'chinhsach': '/chinh-sach-bao-mat'
+    };
+    
+    // Định nghĩa mapping ngược từ URL về ID nội dung
+    const contentMappings = {};
+    for (const [id, url] of Object.entries(urlMappings)) {
+        contentMappings[url] = id;
+    }
+    
+    // Hàm hiển thị nội dung không thêm vào lịch sử (dùng cho sự kiện popstate)
+    function showContentWithoutHistory(id) {
+        console.log("Hiển thị nội dung cho:", id, "(không thêm lịch sử)");
+        
+        // Ẩn tất cả các phần nội dung
+        const sections = document.querySelectorAll('.content-section');
+        sections.forEach(section => section.classList.add('hidden'));
+        
+        // Hiển thị phần được chọn
+        const selectedSection = document.getElementById(id);
+        if (selectedSection) {
+            selectedSection.classList.remove('hidden');
+        } else {
+            console.error("Không tìm thấy phần nội dung với id:", id);
+        }
+
+        // Cập nhật trạng thái active cho menu
+        const links = document.querySelectorAll('.menu-link');
+        links.forEach(link => link.classList.remove('active'));
+        
+        const activeLink = document.getElementById(id + '-link');
+        if (activeLink) {
+            activeLink.classList.add('active');
+        }
+        
+        // Cập nhật tiêu đề trang
+        if (selectedSection) {
+            const pageTitle = selectedSection.querySelector('h2').textContent + ' - Vay Online';
+            document.title = pageTitle;
+        }
+    }
+    
+    // Hàm hiển thị nội dung và thêm vào lịch sử
+    function showContent(id) {
+        console.log("Hiển thị nội dung cho:", id);
+        
+        // Hiển thị nội dung
+        showContentWithoutHistory(id);
+        
+        // Cập nhật URL và thêm vào lịch sử
+        if (urlMappings[id]) {
+            const newUrl = urlMappings[id];
+            const pageTitle = document.getElementById(id).querySelector('h2').textContent + ' - Vay Online';
+            
+            // Cập nhật URL mà không tải lại trang
+            history.pushState({ id: id }, pageTitle, newUrl);
+        }
+    }
+    
+    // Hàm tải nội dung tin tức bằng AJAX
+    function loadNews(url, title, addToHistory = true) {
+        console.log("Đang tải tin tức từ URL:", url, "addToHistory:", addToHistory);
+        
+        // Hiển thị phần tin tức trước
+        const newsDetailSection = document.getElementById('news-detail');
+        if (!newsDetailSection) {
+            console.error("Không tìm thấy phần news-detail");
+            return false;
+        }
+        
+        // Hiển thị phần chi tiết tin tức
+        const sections = document.querySelectorAll('.content-section');
+        sections.forEach(section => section.classList.add('hidden'));
+        newsDetailSection.classList.remove('hidden');
+        
+        // Cập nhật menu active
+        const links = document.querySelectorAll('.menu-link');
+        links.forEach(link => link.classList.remove('active'));
+        const newsLink = document.getElementById('news-link');
+        if (newsLink) {
+            newsLink.classList.add('active');
+        }
+        
+        // Hiển thị trạng thái đang tải
+        document.getElementById('news-detail-content').innerHTML = 
+            '<div class="flex justify-center items-center h-64"><div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-500"></div></div>';
+        
+        // Tạo đường dẫn URL thân thiện từ URL tin tức
+        const newsSlug = url.split('/').pop().replace('.html', '');
+        const friendlyUrl = '/tin-tuc/' + newsSlug;
+        
+        // Gửi yêu cầu AJAX
+        fetch(url)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.text();
+            })
+            .then(html => {
+                console.log("Đã nhận phản hồi từ server");
+                
+                // Trích xuất nội dung từ file tin tức
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                const content = doc.querySelector('.news-content') || doc.body;
+                
+                // Cập nhật nội dung
+                document.getElementById('news-detail-content').innerHTML = '';
+                document.getElementById('news-detail-content').appendChild(content.cloneNode(true));
+                document.getElementById('news-title').textContent = title;
+                
+                // Cập nhật tiêu đề trang
+                document.title = title + ' - Vay Online';
+                
+                // Chỉ cập nhật URL và thêm vào lịch sử nếu addToHistory = true
+                if (addToHistory) {
+                    // Cập nhật URL thân thiện và thêm vào lịch sử
+                    history.pushState({ url: url, title: title, type: 'news' }, title, friendlyUrl);
+                } else if (window.location.pathname !== friendlyUrl) {
+                    // Cập nhật URL nhưng không thêm vào lịch sử (replaceState thay vì pushState)
+                    history.replaceState({ url: url, title: title, type: 'news' }, title, friendlyUrl);
+                }
+                
+                console.log("Đã cập nhật nội dung tin tức thành công");
+            })
+            .catch(error => {
+                document.getElementById('news-detail-content').innerHTML = 
+                    '<div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded" role="alert">' +
+                    '<p>Không thể tải nội dung tin tức. Vui lòng thử lại sau.</p>' +
+                    '<p>Lỗi: ' + error.message + '</p>' +
+                    '</div>';
+                console.error('Error loading news:', error);
+            });
+            
+        // Ngăn chặn hành vi mặc định của thẻ a
+        return false;
+    }
+    
+    // ===== BẮT ĐẦU TÍCH HỢP MÃ PHÂN TRANG =====
+    
+    // Đảm bảo code chỉ chạy khi đã tồn tại các thành phần cần thiết
     document.addEventListener('DOMContentLoaded', function() {
+        // Khởi tạo trang ban đầu dựa trên URL
+        setupInitialPageFromURL();
+        
+        // Khởi tạo phân trang nếu chúng ta đang ở trang tin tức
+        initNewsPagination();
+        
+        // Theo dõi sự kiện popstate (khi người dùng nhấn nút back/forward của trình duyệt)
+        window.addEventListener('popstate', function(event) {
+            console.log("Sự kiện popstate được kích hoạt:", event.state);
+            
+            // Xác định URL hiện tại dựa trên window.location
+            const currentPath = window.location.pathname;
+            
+            // Xử lý dựa vào state được lưu trong history hoặc URL hiện tại
+            if (event.state && event.state.type === 'news') {
+                // Quay trở lại một tin tức cụ thể
+                loadNews(event.state.url, event.state.title, false); // false để không thêm lịch sử mới
+            } else if (event.state && event.state.newsPage) {
+                // Quay lại trang phân trang tin tức
+                displayNews(event.state.newsPage);
+            } else if (event.state && event.state.id) {
+                // Quay trở lại một section
+                showContentWithoutHistory(event.state.id);
+            } else {
+                // Nếu không có state cụ thể, phân tích URL hiện tại
+                
+                // Kiểm tra nếu là URL tin tức cụ thể
+                if (currentPath.startsWith('/tin-tuc/') && 
+                    currentPath !== '/tin-tuc/' && 
+                    !currentPath.match(/\/tin-tuc\/trang\/\d+/)) {
+                    const newsSlug = currentPath.split('/').pop();
+                    const newsUrl = '/news/' + newsSlug + '.html';
+                    
+                    // Tìm tin tức tương ứng
+                    const newsLinks = document.querySelectorAll('.news-item-link');
+                    let found = false;
+                    for (let link of newsLinks) {
+                        if (link.getAttribute('href').includes(newsSlug)) {
+                            loadNews(link.getAttribute('href'), link.querySelector('h3').textContent, false);
+                            found = true;
+                            break;
+                        }
+                    }
+                    
+                    // Nếu không tìm thấy tin tức, chuyển về danh sách tin
+                    if (!found) {
+                        showContentWithoutHistory('news');
+                    }
+                } else if (currentPath.match(/\/tin-tuc\/trang\/\d+/)) {
+                    // Xử lý URL phân trang tin tức
+                    const currentPage = getCurrentPageFromURL();
+                    displayNews(currentPage);
+                } else {
+                    // Tìm section tương ứng với URL hiện tại
+                    const sectionId = contentMappings[currentPath] || 'home';
+                    showContentWithoutHistory(sectionId);
+                }
+            }
+        });
+    });
+    
+    // Hàm thiết lập trang ban đầu dựa trên URL hiện tại
+    function setupInitialPageFromURL() {
+        const currentPath = window.location.pathname;
+        
+        // Kiểm tra nếu là URL phân trang tin tức
+        if (currentPath.match(/\/tin-tuc\/trang\/\d+/)) {
+            // Hiển thị nội dung trang tin tức
+            showContentWithoutHistory('news');
+            
+            // Lấy số trang từ URL
+            const currentPage = getCurrentPageFromURL();
+            
+            // Hiển thị trang tin tức tương ứng sau khi DOM được tải hoàn toàn
+            setTimeout(() => {
+                displayNews(currentPage);
+            }, 100);
+            return;
+        }
+        
+        // Kiểm tra nếu là URL tin tức cụ thể
+        if (currentPath.startsWith('/tin-tuc/') && currentPath !== '/tin-tuc/') {
+            const newsSlug = currentPath.split('/').pop();
+            const newsUrl = '/news/' + newsSlug + '.html';
+            
+            // Tìm tin tức tương ứng
+            const newsLinks = document.querySelectorAll('.news-item-link');
+            let found = false;
+            for (let link of newsLinks) {
+                if (link.getAttribute('href').includes(newsSlug)) {
+                    // Tải nội dung tin tức nhưng không thêm vào lịch sử
+                    loadNews(link.getAttribute('href'), link.querySelector('h3').textContent, false);
+                    found = true;
+                    break;
+                }
+            }
+            
+            // Nếu không tìm thấy tin tức, chuyển hướng về danh sách tin
+            if (!found) {
+                // Khởi tạo trạng thái ban đầu là trang danh sách tin tức
+                showContentWithoutHistory('news');
+                // Cập nhật URL mà không thêm vào lịch sử
+                history.replaceState({ id: 'news' }, 'Tin tức - Vay Online', '/tin-tuc');
+            }
+        } else {
+            // Tìm section tương ứng với URL hiện tại
+            const sectionId = contentMappings[currentPath] || 'home';
+            
+            // Hiển thị nội dung tương ứng mà không thêm vào lịch sử
+            showContentWithoutHistory(sectionId);
+            
+            // Đảm bảo URL đúng với nội dung hiện tại
+            if (urlMappings[sectionId] && urlMappings[sectionId] !== currentPath) {
+                history.replaceState({ id: sectionId }, document.title, urlMappings[sectionId]);
+            }
+        }
+        
+        // Khởi tạo trạng thái lịch sử ban đầu
+        if (history.state === null) {
+            const sectionId = contentMappings[currentPath] || 'home';
+            const currentTitle = document.title;
+            history.replaceState({ id: sectionId }, currentTitle, currentPath);
+        }
+    }
+    
+    // Hàm khởi tạo phân trang cho phần tin tức
+    function initNewsPagination() {
+        // Kiểm tra xem container tin tức có tồn tại không
+        const newsContainer = document.querySelector('#news .grid');
+        if (!newsContainer) {
+            console.log('Không tìm thấy container tin tức để khởi tạo phân trang');
+            return;
+        }
+        
+        // Thu thập tin tức từ HTML hiện tại
+        const existingNewsItems = newsContainer.querySelectorAll('.bg-white');
+        const allNewsItems = Array.from(existingNewsItems);
+        
+        // Cấu hình phân trang
+        const newsPerPage = 6; // Số tin tức trên mỗi trang
+        const totalPages = Math.ceil(allNewsItems.length / newsPerPage);
+        
+        // Tạo container cho phân trang nếu chưa có
+        let paginationContainer = document.querySelector('#news-pagination');
+        if (!paginationContainer) {
+            paginationContainer = document.createElement('div');
+            paginationContainer.id = 'news-pagination';
+            paginationContainer.className = 'flex justify-center mt-6 space-x-2';
+            newsContainer.parentNode.insertBefore(paginationContainer, newsContainer.nextSibling);
+        }
+        
+        // Lấy số trang hiện tại từ URL
+        const currentPage = getCurrentPageFromURL();
+        
+        // Hiển thị tin tức theo trang
+        displayNews(currentPage);
+        
+        // Xử lý click vào menu tin tức
+        const newsMenuItems = document.querySelectorAll('a[href*="tin-tuc"], a[href="#news"], [data-section="news"]');
+        newsMenuItems.forEach(item => {
+            item.addEventListener('click', function(e) {
+                // Nếu người dùng đang ở trang danh sách tin tức và click vào menu tin tức
+                // thì luôn chuyển về trang đầu tiên
+                if (window.location.pathname.includes('/tin-tuc')) {
+                    const isNewsListingPage = window.location.pathname === '/tin-tuc/' || 
+                                            window.location.pathname.includes('/tin-tuc/trang/');
+                    
+                    if (isNewsListingPage) {
+                        e.preventDefault();
+                        displayNews(1); // Luôn hiển thị trang đầu tiên khi bấm vào menu tin tức
+                    }
+                }
+            });
+        });
+        
+        // Nếu phần tin tức ban đầu bị ẩn, thêm code xử lý khi nó được hiển thị
+        const newsSection = document.getElementById('news');
+        if (newsSection && newsSection.classList.contains('hidden')) {
+            // Tìm các phần tử điều hướng menu có thể hiển thị phần tin tức
+            const navItems = document.querySelectorAll('nav a, button, [data-section]');
+            navItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    // Kiểm tra nếu phần tin tức đã được hiển thị
+                    if (!newsSection.classList.contains('hidden')) {
+                        // Khởi tạo lại phân trang (phòng trường hợp các tin tức thay đổi)
+                        setTimeout(() => displayNews(getCurrentPageFromURL()), 100);
+                    }
+                });
+            });
+        }
+    }
+    
+    // Phân tích URL để lấy số trang
+    function getCurrentPageFromURL() {
+        // Phân tích URL path để tìm pattern /tin-tuc/trang/{number}
+        const path = window.location.pathname;
+        const pageMatch = path.match(/\/tin-tuc\/trang\/(\d+)/i);
+        
+        if (pageMatch && pageMatch[1]) {
+            // Lấy số trang từ URL
+            const newsContainer = document.querySelector('#news .grid');
+            if (!newsContainer) return 1;
+            
+            const existingNewsItems = newsContainer.querySelectorAll('.bg-white');
+            const totalPages = Math.ceil(existingNewsItems.length / 6);
+            
+            const page = parseInt(pageMatch[1]);
+            return page > 0 && page <= totalPages ? page : 1;
+        }
+        
+        return 1; // Mặc định trang 1
+    }
+    
+    // Cập nhật URL khi chuyển trang mà không làm tải lại trang
+    function updateURLWithPage(page) {
+        // Tạo URL mới với định dạng tiếng Việt
+        const newURL = page === 1 ? '/tin-tuc/' : `/tin-tuc/trang/${page}`;
+        
+        // Cập nhật lịch sử duyệt web
+        window.history.pushState({ newsPage: page }, '', newURL);
+    }
+    
+    // Hàm hiển thị tin tức theo trang
+    function displayNews(page) {
+        // Đảm bảo phần tin tức đang được hiển thị
+        showContentWithoutHistory('news');
+        
         // Kiểm tra xem container tin tức có tồn tại không
         const newsContainer = document.querySelector('#news .grid');
         if (!newsContainer) {
@@ -1364,7 +1498,486 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Cấu hình phân trang
         const newsPerPage = 6; // Số tin tức trên mỗi trang
-        let currentPage = 1;
+        const totalPages = Math.ceil(allNewsItems.length / newsPerPage);
+        
+        // Đảm bảo số trang hợp lệ
+        page = Math.max(1, Math.min(page, totalPages));
+        
+        // Cập nhật URL
+        updateURLWithPage(page);
+        
+        // Xác định phạm vi tin tức cần hiển thị
+        const startIndex = (page - 1) * newsPerPage;
+        const endIndex = Math.min(startIndex + newsPerPage, allNewsItems.length);
+        
+        // Hiển thị tin tức cho trang hiện tại bằng cách đặt thuộc tính display
+        allNewsItems.forEach((item, index) => {
+            // Không xóa phần tử khỏi DOM, chỉ ẩn hoặc hiển thị
+            if (index >= startIndex && index < endIndex) {
+                item.style.display = '';
+                item.setAttribute('data-visible', 'true');
+            } else {
+                item.style.display = 'none';
+                item.setAttribute('data-visible', 'false');
+            }
+        });
+        
+        // Cập nhật phân trang
+        createPagination(page, totalPages);
+        
+        // Cập nhật meta thẻ cho SEO
+        updateSEOMetaTags(page, totalPages);
+        
+        // Cuộn lên đầu của phần tin tức
+        const newsSection = document.getElementById('news');
+        if (newsSection) {
+            newsSection.scrollIntoView({ behavior: 'smooth' });
+        }
+    }
+    
+    // Hàm tạo các nút phân trang
+    function createPagination(currentPage, totalPages) {
+        // Tìm hoặc tạo container phân trang
+        let paginationContainer = document.querySelector('#news-pagination');
+        if (!paginationContainer) {
+            const newsContainer = document.querySelector('#news .grid');
+            if (!newsContainer) return;
+            
+            paginationContainer = document.createElement('div');
+            paginationContainer.id = 'news-pagination';
+            paginationContainer.className = 'flex justify-center mt-6 space-x-2';
+            newsContainer.parentNode.insertBefore(paginationContainer, newsContainer.nextSibling);
+        }
+        
+        // Xóa phân trang cũ
+        paginationContainer.innerHTML = '';
+        
+        // Nếu chỉ có 1 trang, không hiển thị phân trang
+        if (totalPages <= 1) {
+            return;
+        }
+        
+        // Tạo nút "Trước"
+        const prevButton = document.createElement('a');
+        prevButton.href = currentPage > 1 ? `/tin-tuc/trang/${currentPage - 1}` : '/tin-tuc/';
+        prevButton.className = `px-3 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition ${currentPage <= 1 ? 'opacity-50 pointer-events-none' : ''}`;
+        prevButton.textContent = 'Trước';
+        prevButton.setAttribute('rel', 'prev');
+        
+        prevButton.addEventListener('click', function(e) {
+            if (currentPage > 1) {
+                e.preventDefault();
+                displayNews(currentPage - 1);
+            }
+        });
+        
+        paginationContainer.appendChild(prevButton);
+        
+        // Hiển thị số trang hợp lý dựa trên trang hiện tại
+        let startPage = Math.max(1, currentPage - 2);
+        let endPage = Math.min(totalPages, startPage + 4);
+        
+        // Điều chỉnh lại nếu không đủ trang bên phải
+        if (endPage - startPage < 4) {
+            startPage = Math.max(1, endPage - 4);
+        }
+        
+        // Hiển thị trang đầu tiên và dấu chấm nếu cần
+        if (startPage > 1) {
+            addPageLink(1);
+            if (startPage > 2) {
+                const ellipsis = document.createElement('span');
+                ellipsis.className = 'px-3 py-2';
+                ellipsis.textContent = '...';
+                paginationContainer.appendChild(ellipsis);
+            }
+        }
+        
+        // Hiển thị các trang chính
+        for (let i = startPage; i <= endPage; i++) {
+            addPageLink(i);
+        }
+        
+        // Hiển thị trang cuối và dấu chấm nếu cần
+        if (endPage < totalPages) {
+            if (endPage < totalPages - 1) {
+                const ellipsis = document.createElement('span');
+                ellipsis.className = 'px-3 py-2';
+                ellipsis.textContent = '...';
+                paginationContainer.appendChild(ellipsis);
+            }
+            addPageLink(totalPages);
+        }
+        
+        // Tạo nút "Sau" 
+        const nextButton = document.createElement('a');
+        nextButton.href = currentPage < totalPages ? `/tin-tuc/trang/${currentPage + 1}` : '#';
+        nextButton.className = `px-3 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition ${currentPage >= totalPages ? 'opacity-50 pointer-events-none' : ''}`;
+        nextButton.textContent = 'Sau';
+        nextButton.setAttribute('rel', 'next');
+        
+        nextButton.addEventListener('click', function(e) {
+            if (currentPage < totalPages) {
+                e.preventDefault();
+                displayNews(currentPage + 1);
+            }
+        });
+        
+        paginationContainer.appendChild(nextButton);
+        
+        // Hàm helper để tạo liên kết trang
+        function addPageLink(pageNum) {
+            const pageLink = document.createElement('a');
+            pageLink.href = pageNum === 1 ? '/tin-tuc/' : `/tin-tuc/trang/${pageNum}`;
+            
+            // Áp dụng style khác cho trang hiện tại
+            if (pageNum === currentPage) {
+                pageLink.className = 'px-3 py-2 bg-blue-600 text-white rounded';
+                pageLink.setAttribute('aria-current', 'page');
+            } else {
+                pageLink.className = 'px-3 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition';
+            }
+            
+            pageLink.textContent = pageNum;
+            
+            pageLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                displayNews(pageNum);
+            });
+            
+            paginationContainer.appendChild(pageLink);
+        }
+    }
+    
+    // Cập nhật các thẻ meta cho SEO
+    function updateSEOMetaTags(currentPage, totalPages) {
+        // Xóa các thẻ link phân trang cũ
+        const oldLinks = document.querySelectorAll('head link[rel="prev"], head link[rel="next"], head link[rel="canonical"]');
+        oldLinks.forEach(link => link.remove());
+        
+        const head = document.querySelector('head');
+        
+        // Thêm canonical link
+        const canonicalLink = document.createElement('link');
+        canonicalLink.rel = 'canonical';
+        canonicalLink.href = currentPage === 1 ? 
+            `${window.location.origin}/tin-tuc/` : 
+            `${window.location.origin}/tin-tuc/trang/${currentPage}`;
+        head.appendChild(canonicalLink);
+        
+        // Thêm link prev nếu không phải trang đầu
+        if (currentPage > 1) {
+            const prevLink = document.createElement('link');
+            prevLink.rel = 'prev';
+            prevLink.href = currentPage === 2 ? 
+                `${window.location.origin}/tin-tuc/` : 
+                `${window.location.origin}/tin-tuc/trang/${currentPage - 1}`;
+            head.appendChild(prevLink);
+        }
+        
+        // Thêm link next nếu không phải trang cuối
+        if (currentPage < totalPages) {
+            const nextLink = document.createElement('link');
+            nextLink.rel = 'next';
+            nextLink.href = `${window.location.origin}/tin-tuc/trang/${currentPage + 1}`;
+            head.appendChild(nextLink);
+        }
+    }
+
+</script>
+<script>
+<script>
+    // Định nghĩa mapping giữa ID nội dung và URL
+    const urlMappings = {
+        'home': '/',
+        'about': '/gioi-thieu',
+        'fastloan': '/vay-tien-nhanh',
+        'credit': '/the-tin-dung',
+        'news': '/tin-tuc',
+        'contact': '/lien-he',
+        'dieukhoan': '/dieu-khoan-su-dung',
+        'chinhsach': '/chinh-sach-bao-mat'
+    };
+    
+    // Định nghĩa mapping ngược từ URL về ID nội dung
+    const contentMappings = {};
+    for (const [id, url] of Object.entries(urlMappings)) {
+        contentMappings[url] = id;
+    }
+    
+    // Hàm hiển thị nội dung không thêm vào lịch sử (dùng cho sự kiện popstate)
+    function showContentWithoutHistory(id) {
+        console.log("Hiển thị nội dung cho:", id, "(không thêm lịch sử)");
+        
+        // Ẩn tất cả các phần nội dung
+        const sections = document.querySelectorAll('.content-section');
+        sections.forEach(section => section.classList.add('hidden'));
+        
+        // Hiển thị phần được chọn
+        const selectedSection = document.getElementById(id);
+        if (selectedSection) {
+            selectedSection.classList.remove('hidden');
+        } else {
+            console.error("Không tìm thấy phần nội dung với id:", id);
+        }
+
+        // Cập nhật trạng thái active cho menu
+        const links = document.querySelectorAll('.menu-link');
+        links.forEach(link => link.classList.remove('active'));
+        
+        const activeLink = document.getElementById(id + '-link');
+        if (activeLink) {
+            activeLink.classList.add('active');
+        }
+        
+        // Cập nhật tiêu đề trang
+        if (selectedSection) {
+            const pageTitle = selectedSection.querySelector('h2').textContent + ' - Vay Online';
+            document.title = pageTitle;
+        }
+    }
+    
+    // Hàm hiển thị nội dung và thêm vào lịch sử
+    function showContent(id) {
+        console.log("Hiển thị nội dung cho:", id);
+        
+        // Hiển thị nội dung
+        showContentWithoutHistory(id);
+        
+        // Cập nhật URL và thêm vào lịch sử
+        if (urlMappings[id]) {
+            const newUrl = urlMappings[id];
+            const pageTitle = document.getElementById(id).querySelector('h2').textContent + ' - Vay Online';
+            
+            // Cập nhật URL mà không tải lại trang
+            history.pushState({ id: id }, pageTitle, newUrl);
+        }
+    }
+    
+    // Hàm tải nội dung tin tức bằng AJAX
+    function loadNews(url, title, addToHistory = true) {
+        console.log("Đang tải tin tức từ URL:", url, "addToHistory:", addToHistory);
+        
+        // Hiển thị phần tin tức trước
+        const newsDetailSection = document.getElementById('news-detail');
+        if (!newsDetailSection) {
+            console.error("Không tìm thấy phần news-detail");
+            return false;
+        }
+        
+        // Hiển thị phần chi tiết tin tức
+        const sections = document.querySelectorAll('.content-section');
+        sections.forEach(section => section.classList.add('hidden'));
+        newsDetailSection.classList.remove('hidden');
+        
+        // Cập nhật menu active
+        const links = document.querySelectorAll('.menu-link');
+        links.forEach(link => link.classList.remove('active'));
+        const newsLink = document.getElementById('news-link');
+        if (newsLink) {
+            newsLink.classList.add('active');
+        }
+        
+        // Hiển thị trạng thái đang tải
+        document.getElementById('news-detail-content').innerHTML = 
+            '<div class="flex justify-center items-center h-64"><div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-500"></div></div>';
+        
+        // Tạo đường dẫn URL thân thiện từ URL tin tức
+        const newsSlug = url.split('/').pop().replace('.html', '');
+        const friendlyUrl = '/tin-tuc/' + newsSlug;
+        
+        // Gửi yêu cầu AJAX
+        fetch(url)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.text();
+            })
+            .then(html => {
+                console.log("Đã nhận phản hồi từ server");
+                
+                // Trích xuất nội dung từ file tin tức
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                const content = doc.querySelector('.news-content') || doc.body;
+                
+                // Cập nhật nội dung
+                document.getElementById('news-detail-content').innerHTML = '';
+                document.getElementById('news-detail-content').appendChild(content.cloneNode(true));
+                document.getElementById('news-title').textContent = title;
+                
+                // Cập nhật tiêu đề trang
+                document.title = title + ' - Vay Online';
+                
+                // Chỉ cập nhật URL và thêm vào lịch sử nếu addToHistory = true
+                if (addToHistory) {
+                    // Cập nhật URL thân thiện và thêm vào lịch sử
+                    history.pushState({ url: url, title: title, type: 'news' }, title, friendlyUrl);
+                } else if (window.location.pathname !== friendlyUrl) {
+                    // Cập nhật URL nhưng không thêm vào lịch sử (replaceState thay vì pushState)
+                    history.replaceState({ url: url, title: title, type: 'news' }, title, friendlyUrl);
+                }
+                
+                console.log("Đã cập nhật nội dung tin tức thành công");
+            })
+            .catch(error => {
+                document.getElementById('news-detail-content').innerHTML = 
+                    '<div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded" role="alert">' +
+                    '<p>Không thể tải nội dung tin tức. Vui lòng thử lại sau.</p>' +
+                    '<p>Lỗi: ' + error.message + '</p>' +
+                    '</div>';
+                console.error('Error loading news:', error);
+            });
+            
+        // Ngăn chặn hành vi mặc định của thẻ a
+        return false;
+    }
+    
+    // ===== BẮT ĐẦU TÍCH HỢP MÃ PHÂN TRANG =====
+    
+    // Đảm bảo code chỉ chạy khi đã tồn tại các thành phần cần thiết
+    document.addEventListener('DOMContentLoaded', function() {
+        // Khởi tạo trang ban đầu dựa trên URL
+        setupInitialPageFromURL();
+        
+        // Khởi tạo phân trang nếu chúng ta đang ở trang tin tức
+        initNewsPagination();
+        
+        // Theo dõi sự kiện popstate (khi người dùng nhấn nút back/forward của trình duyệt)
+        window.addEventListener('popstate', function(event) {
+            console.log("Sự kiện popstate được kích hoạt:", event.state);
+            
+            // Xác định URL hiện tại dựa trên window.location
+            const currentPath = window.location.pathname;
+            
+            // Xử lý dựa vào state được lưu trong history hoặc URL hiện tại
+            if (event.state && event.state.type === 'news') {
+                // Quay trở lại một tin tức cụ thể
+                loadNews(event.state.url, event.state.title, false); // false để không thêm lịch sử mới
+            } else if (event.state && event.state.newsPage) {
+                // Quay lại trang phân trang tin tức
+                displayNews(event.state.newsPage);
+            } else if (event.state && event.state.id) {
+                // Quay trở lại một section
+                showContentWithoutHistory(event.state.id);
+            } else {
+                // Nếu không có state cụ thể, phân tích URL hiện tại
+                
+                // Kiểm tra nếu là URL tin tức cụ thể
+                if (currentPath.startsWith('/tin-tuc/') && 
+                    currentPath !== '/tin-tuc/' && 
+                    !currentPath.match(/\/tin-tuc\/trang\/\d+/)) {
+                    const newsSlug = currentPath.split('/').pop();
+                    const newsUrl = '/news/' + newsSlug + '.html';
+                    
+                    // Tìm tin tức tương ứng
+                    const newsLinks = document.querySelectorAll('.news-item-link');
+                    let found = false;
+                    for (let link of newsLinks) {
+                        if (link.getAttribute('href').includes(newsSlug)) {
+                            loadNews(link.getAttribute('href'), link.querySelector('h3').textContent, false);
+                            found = true;
+                            break;
+                        }
+                    }
+                    
+                    // Nếu không tìm thấy tin tức, chuyển về danh sách tin
+                    if (!found) {
+                        showContentWithoutHistory('news');
+                    }
+                } else if (currentPath.match(/\/tin-tuc\/trang\/\d+/)) {
+                    // Xử lý URL phân trang tin tức
+                    const currentPage = getCurrentPageFromURL();
+                    displayNews(currentPage);
+                } else {
+                    // Tìm section tương ứng với URL hiện tại
+                    const sectionId = contentMappings[currentPath] || 'home';
+                    showContentWithoutHistory(sectionId);
+                }
+            }
+        });
+    });
+    
+    // Hàm thiết lập trang ban đầu dựa trên URL hiện tại
+    function setupInitialPageFromURL() {
+        const currentPath = window.location.pathname;
+        
+        // Kiểm tra nếu là URL phân trang tin tức
+        if (currentPath.match(/\/tin-tuc\/trang\/\d+/)) {
+            // Hiển thị nội dung trang tin tức
+            showContentWithoutHistory('news');
+            
+            // Lấy số trang từ URL
+            const currentPage = getCurrentPageFromURL();
+            
+            // Hiển thị trang tin tức tương ứng sau khi DOM được tải hoàn toàn
+            setTimeout(() => {
+                displayNews(currentPage);
+            }, 100);
+            return;
+        }
+        
+        // Kiểm tra nếu là URL tin tức cụ thể
+        if (currentPath.startsWith('/tin-tuc/') && currentPath !== '/tin-tuc/') {
+            const newsSlug = currentPath.split('/').pop();
+            const newsUrl = '/news/' + newsSlug + '.html';
+            
+            // Tìm tin tức tương ứng
+            const newsLinks = document.querySelectorAll('.news-item-link');
+            let found = false;
+            for (let link of newsLinks) {
+                if (link.getAttribute('href').includes(newsSlug)) {
+                    // Tải nội dung tin tức nhưng không thêm vào lịch sử
+                    loadNews(link.getAttribute('href'), link.querySelector('h3').textContent, false);
+                    found = true;
+                    break;
+                }
+            }
+            
+            // Nếu không tìm thấy tin tức, chuyển hướng về danh sách tin
+            if (!found) {
+                // Khởi tạo trạng thái ban đầu là trang danh sách tin tức
+                showContentWithoutHistory('news');
+                // Cập nhật URL mà không thêm vào lịch sử
+                history.replaceState({ id: 'news' }, 'Tin tức - Vay Online', '/tin-tuc');
+            }
+        } else {
+            // Tìm section tương ứng với URL hiện tại
+            const sectionId = contentMappings[currentPath] || 'home';
+            
+            // Hiển thị nội dung tương ứng mà không thêm vào lịch sử
+            showContentWithoutHistory(sectionId);
+            
+            // Đảm bảo URL đúng với nội dung hiện tại
+            if (urlMappings[sectionId] && urlMappings[sectionId] !== currentPath) {
+                history.replaceState({ id: sectionId }, document.title, urlMappings[sectionId]);
+            }
+        }
+        
+        // Khởi tạo trạng thái lịch sử ban đầu
+        if (history.state === null) {
+            const sectionId = contentMappings[currentPath] || 'home';
+            const currentTitle = document.title;
+            history.replaceState({ id: sectionId }, currentTitle, currentPath);
+        }
+    }
+    
+    // Hàm khởi tạo phân trang cho phần tin tức
+    function initNewsPagination() {
+        // Kiểm tra xem container tin tức có tồn tại không
+        const newsContainer = document.querySelector('#news .grid');
+        if (!newsContainer) {
+            console.log('Không tìm thấy container tin tức để khởi tạo phân trang');
+            return;
+        }
+        
+        // Thu thập tin tức từ HTML hiện tại
+        const existingNewsItems = newsContainer.querySelectorAll('.bg-white');
+        const allNewsItems = Array.from(existingNewsItems);
+        
+        // Cấu hình phân trang
+        const newsPerPage = 6; // Số tin tức trên mỗi trang
         const totalPages = Math.ceil(allNewsItems.length / newsPerPage);
         
         // Tạo container cho phân trang nếu chưa có
@@ -1375,104 +1988,30 @@ document.addEventListener('DOMContentLoaded', function() {
             paginationContainer.className = 'flex justify-center mt-6 space-x-2';
             newsContainer.parentNode.insertBefore(paginationContainer, newsContainer.nextSibling);
         }
-
-        // Hàm hiển thị tin tức theo trang
-        function displayNews(page) {
-            // Lưu trang hiện tại
-            currentPage = page;
-            
-            // Xóa nội dung cũ
-            newsContainer.innerHTML = '';
-            
-            // Tính toán phạm vi tin tức cần hiển thị
-            const startIndex = (page - 1) * newsPerPage;
-            const endIndex = Math.min(startIndex + newsPerPage, allNewsItems.length);
-            
-            // Hiển thị tin tức cho trang hiện tại
-            for (let i = startIndex; i < endIndex; i++) {
-                // Thêm bản sao của tin tức vào container
-                const newsItemClone = allNewsItems[i].cloneNode(true);
-                newsContainer.appendChild(newsItemClone);
-            }
-            
-            // Cập nhật phân trang
-            createPagination(page);
-        }
-
-        // Hàm tạo các nút phân trang với Tailwind CSS
-        function createPagination(currentPage) {
-            // Xóa phân trang cũ
-            paginationContainer.innerHTML = '';
-            
-            // Nếu chỉ có 1 trang, không hiển thị phân trang
-            if (totalPages <= 1) {
-                return;
-            }
-            
-            // Tạo nút "Trước" nếu không phải trang đầu tiên
-            if (currentPage > 1) {
-                const prevButton = document.createElement('a');
-                prevButton.href = '#news';
-                prevButton.className = 'px-3 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition';
-                prevButton.textContent = 'Trước';
-                
-                prevButton.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    displayNews(currentPage - 1);
-                });
-                
-                paginationContainer.appendChild(prevButton);
-            }
-            
-            // Tạo các nút số trang (1, 2, 3...)
-            for (let i = 1; i <= totalPages; i++) {
-                const pageLink = document.createElement('a');
-                pageLink.href = '#news';
-                
-                // Áp dụng style khác cho trang hiện tại
-                if (i === currentPage) {
-                    pageLink.className = 'px-3 py-2 bg-blue-600 text-white rounded';
-                } else {
-                    pageLink.className = 'px-3 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition';
-                }
-                
-                pageLink.textContent = i;
-                
-                pageLink.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    displayNews(i);
-                });
-                
-                paginationContainer.appendChild(pageLink);
-            }
-            
-            // Tạo nút "Sau" nếu không phải trang cuối
-            if (currentPage < totalPages) {
-                const nextButton = document.createElement('a');
-                nextButton.href = '#news';
-                nextButton.className = 'px-3 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition';
-                nextButton.textContent = 'Sau';
-                
-                nextButton.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    displayNews(currentPage + 1);
-                });
-                
-                paginationContainer.appendChild(nextButton);
-            }
-        }
-
-        // Lưu trữ tin tức hiện có trước khi bắt đầu phân trang
-        function initPagination() {
-            // Nếu có đủ tin tức để cần phân trang
-            if (allNewsItems.length > newsPerPage) {
-                // Khởi tạo hiển thị trang đầu tiên
-                displayNews(1);
-            }
-        }
         
-        // Khởi tạo phân trang
-        initPagination();
+        // Lấy số trang hiện tại từ URL
+        const currentPage = getCurrentPageFromURL();
+        
+        // Hiển thị tin tức theo trang
+        displayNews(currentPage);
+        
+        // Xử lý click vào menu tin tức
+        const newsMenuItems = document.querySelectorAll('a[href*="tin-tuc"], a[href="#news"], [data-section="news"]');
+        newsMenuItems.forEach(item => {
+            item.addEventListener('click', function(e) {
+                // Nếu người dùng đang ở trang danh sách tin tức và click vào menu tin tức
+                // thì luôn chuyển về trang đầu tiên
+                if (window.location.pathname.includes('/tin-tuc')) {
+                    const isNewsListingPage = window.location.pathname === '/tin-tuc/' || 
+                                            window.location.pathname.includes('/tin-tuc/trang/');
+                    
+                    if (isNewsListingPage) {
+                        e.preventDefault();
+                        displayNews(1); // Luôn hiển thị trang đầu tiên khi bấm vào menu tin tức
+                    }
+                }
+            });
+        });
         
         // Nếu phần tin tức ban đầu bị ẩn, thêm code xử lý khi nó được hiển thị
         const newsSection = document.getElementById('news');
@@ -1484,12 +2023,301 @@ document.addEventListener('DOMContentLoaded', function() {
                     // Kiểm tra nếu phần tin tức đã được hiển thị
                     if (!newsSection.classList.contains('hidden')) {
                         // Khởi tạo lại phân trang (phòng trường hợp các tin tức thay đổi)
-                        setTimeout(initPagination, 100);
+                        setTimeout(() => displayNews(getCurrentPageFromURL()), 100);
                     }
                 });
             });
         }
+    }
+    
+    // Phân tích URL để lấy số trang
+    function getCurrentPageFromURL() {
+        // Phân tích URL path để tìm pattern /tin-tuc/trang/{number}
+        const path = window.location.pathname;
+        const pageMatch = path.match(/\/tin-tuc\/trang\/(\d+)/i);
+        
+        if (pageMatch && pageMatch[1]) {
+            // Lấy số trang từ URL
+            const newsContainer = document.querySelector('#news .grid');
+            if (!newsContainer) return 1;
+            
+            const existingNewsItems = newsContainer.querySelectorAll('.bg-white');
+            const totalPages = Math.ceil(existingNewsItems.length / 6);
+            
+            const page = parseInt(pageMatch[1]);
+            return page > 0 && page <= totalPages ? page : 1;
+        }
+        
+        return 1; // Mặc định trang 1
+    }
+    
+    // Cập nhật URL khi chuyển trang mà không làm tải lại trang
+    function updateURLWithPage(page) {
+        // Tạo URL mới với định dạng tiếng Việt
+        const newURL = page === 1 ? '/tin-tuc/' : `/tin-tuc/trang/${page}`;
+        
+        // Cập nhật lịch sử duyệt web
+        window.history.pushState({ newsPage: page }, '', newURL);
+    }
+    
+    // Hàm hiển thị tin tức theo trang
+    function displayNews(page) {
+        // Đảm bảo phần tin tức đang được hiển thị
+        showContentWithoutHistory('news');
+        
+        // Kiểm tra xem container tin tức có tồn tại không
+        const newsContainer = document.querySelector('#news .grid');
+        if (!newsContainer) {
+            console.error('Không tìm thấy container tin tức');
+            return;
+        }
+        
+        // Thu thập tin tức từ HTML hiện tại
+        const existingNewsItems = newsContainer.querySelectorAll('.bg-white');
+        const allNewsItems = Array.from(existingNewsItems);
+        
+        // Cấu hình phân trang
+        const newsPerPage = 6; // Số tin tức trên mỗi trang
+        const totalPages = Math.ceil(allNewsItems.length / newsPerPage);
+        
+        // Đảm bảo số trang hợp lệ
+        page = Math.max(1, Math.min(page, totalPages));
+        
+        // Cập nhật URL
+        updateURLWithPage(page);
+        
+        // Xác định phạm vi tin tức cần hiển thị
+        const startIndex = (page - 1) * newsPerPage;
+        const endIndex = Math.min(startIndex + newsPerPage, allNewsItems.length);
+        
+        // Hiển thị tin tức cho trang hiện tại bằng cách đặt thuộc tính display
+        allNewsItems.forEach((item, index) => {
+            // Không xóa phần tử khỏi DOM, chỉ ẩn hoặc hiển thị
+            if (index >= startIndex && index < endIndex) {
+                item.style.display = '';
+                item.setAttribute('data-visible', 'true');
+            } else {
+                item.style.display = 'none';
+                item.setAttribute('data-visible', 'false');
+            }
+        });
+        
+        // Cập nhật phân trang
+        createPagination(page, totalPages);
+        
+        // Cập nhật meta thẻ cho SEO
+        updateSEOMetaTags(page, totalPages);
+        
+        // Cuộn lên đầu của phần tin tức
+        const newsSection = document.getElementById('news');
+        if (newsSection) {
+            newsSection.scrollIntoView({ behavior: 'smooth' });
+        }
+    }
+    
+    // Hàm tạo các nút phân trang
+    function createPagination(currentPage, totalPages) {
+        // Tìm hoặc tạo container phân trang
+        let paginationContainer = document.querySelector('#news-pagination');
+        if (!paginationContainer) {
+            const newsContainer = document.querySelector('#news .grid');
+            if (!newsContainer) return;
+            
+            paginationContainer = document.createElement('div');
+            paginationContainer.id = 'news-pagination';
+            paginationContainer.className = 'flex justify-center mt-6 space-x-2';
+            newsContainer.parentNode.insertBefore(paginationContainer, newsContainer.nextSibling);
+        }
+        
+        // Xóa phân trang cũ
+        paginationContainer.innerHTML = '';
+        
+        // Nếu chỉ có 1 trang, không hiển thị phân trang
+        if (totalPages <= 1) {
+            return;
+        }
+        
+        // Tạo nút "Trước"
+        const prevButton = document.createElement('a');
+        prevButton.href = currentPage > 1 ? `/tin-tuc/trang/${currentPage - 1}` : '/tin-tuc/';
+        prevButton.className = `px-3 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition ${currentPage <= 1 ? 'opacity-50 pointer-events-none' : ''}`;
+        prevButton.textContent = 'Trước';
+        prevButton.setAttribute('rel', 'prev');
+        
+        prevButton.addEventListener('click', function(e) {
+            if (currentPage > 1) {
+                e.preventDefault();
+                displayNews(currentPage - 1);
+            }
+        });
+        
+        paginationContainer.appendChild(prevButton);
+        
+        // Hiển thị số trang hợp lý dựa trên trang hiện tại
+        let startPage = Math.max(1, currentPage - 2);
+        let endPage = Math.min(totalPages, startPage + 4);
+        
+        // Điều chỉnh lại nếu không đủ trang bên phải
+        if (endPage - startPage < 4) {
+            startPage = Math.max(1, endPage - 4);
+        }
+        
+        // Hiển thị trang đầu tiên và dấu chấm nếu cần
+        if (startPage > 1) {
+            addPageLink(1);
+            if (startPage > 2) {
+                const ellipsis = document.createElement('span');
+                ellipsis.className = 'px-3 py-2';
+                ellipsis.textContent = '...';
+                paginationContainer.appendChild(ellipsis);
+            }
+        }
+        
+        // Hiển thị các trang chính
+        for (let i = startPage; i <= endPage; i++) {
+            addPageLink(i);
+        }
+        
+        // Hiển thị trang cuối và dấu chấm nếu cần
+        if (endPage < totalPages) {
+            if (endPage < totalPages - 1) {
+                const ellipsis = document.createElement('span');
+                ellipsis.className = 'px-3 py-2';
+                ellipsis.textContent = '...';
+                paginationContainer.appendChild(ellipsis);
+            }
+            addPageLink(totalPages);
+        }
+        
+        // Tạo nút "Sau" 
+        const nextButton = document.createElement('a');
+        nextButton.href = currentPage < totalPages ? `/tin-tuc/trang/${currentPage + 1}` : '#';
+        nextButton.className = `px-3 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition ${currentPage >= totalPages ? 'opacity-50 pointer-events-none' : ''}`;
+        nextButton.textContent = 'Sau';
+        nextButton.setAttribute('rel', 'next');
+        
+        nextButton.addEventListener('click', function(e) {
+            if (currentPage < totalPages) {
+                e.preventDefault();
+                displayNews(currentPage + 1);
+            }
+        });
+        
+        paginationContainer.appendChild(nextButton);
+        
+        // Hàm helper để tạo liên kết trang
+        function addPageLink(pageNum) {
+            const pageLink = document.createElement('a');
+            pageLink.href = pageNum === 1 ? '/tin-tuc/' : `/tin-tuc/trang/${pageNum}`;
+            
+            // Áp dụng style khác cho trang hiện tại
+            if (pageNum === currentPage) {
+                pageLink.className = 'px-3 py-2 bg-blue-600 text-white rounded';
+                pageLink.setAttribute('aria-current', 'page');
+            } else {
+                pageLink.className = 'px-3 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition';
+            }
+            
+            pageLink.textContent = pageNum;
+            
+            pageLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                displayNews(pageNum);
+            });
+            
+            paginationContainer.appendChild(pageLink);
+        }
+    }
+    
+    // Cập nhật các thẻ meta cho SEO
+    function updateSEOMetaTags(currentPage, totalPages) {
+        // Xóa các thẻ link phân trang cũ
+        const oldLinks = document.querySelectorAll('head link[rel="prev"], head link[rel="next"], head link[rel="canonical"]');
+        oldLinks.forEach(link => link.remove());
+        
+        const head = document.querySelector('head');
+        
+        // Thêm canonical link
+        const canonicalLink = document.createElement('link');
+        canonicalLink.rel = 'canonical';
+        canonicalLink.href = currentPage === 1 ? 
+            `${window.location.origin}/tin-tuc/` : 
+            `${window.location.origin}/tin-tuc/trang/${currentPage}`;
+        head.appendChild(canonicalLink);
+        
+        // Thêm link prev nếu không phải trang đầu
+        if (currentPage > 1) {
+            const prevLink = document.createElement('link');
+            prevLink.rel = 'prev';
+            prevLink.href = currentPage === 2 ? 
+                `${window.location.origin}/tin-tuc/` : 
+                `${window.location.origin}/tin-tuc/trang/${currentPage - 1}`;
+            head.appendChild(prevLink);
+        }
+        
+        // Thêm link next nếu không phải trang cuối
+        if (currentPage < totalPages) {
+            const nextLink = document.createElement('link');
+            nextLink.rel = 'next';
+            nextLink.href = `${window.location.origin}/tin-tuc/trang/${currentPage + 1}`;
+            head.appendChild(nextLink);
+        }
+    }
+</script>
+
+
+document.addEventListener('DOMContentLoaded', function() {
+    const path = window.location.pathname;
+
+    // Nếu truy cập vào / thì hiển thị trang Home
+    if (path === '/' || path === '') {
+        showContentWithoutHistory('home');
+        history.replaceState({ id: 'home' }, document.title, '/');
+    } else {
+        setupInitialPageFromURL();
+    }
+
+    initNewsPagination();
+
+    // Theo dõi sự kiện Back/Forward
+    window.addEventListener('popstate', function(event) {
+        const currentPath = window.location.pathname;
+
+        if (event.state && event.state.type === 'news') {
+            loadNews(event.state.url, event.state.title, false);
+        } else if (event.state && event.state.newsPage) {
+            displayNews(event.state.newsPage);
+        } else if (event.state && event.state.id) {
+            showContentWithoutHistory(event.state.id);
+        } else {
+            if (currentPath.startsWith('/tin-tuc/') && 
+                currentPath !== '/tin-tuc/' && 
+                !currentPath.match(/\/tin-tuc\/trang\/\d+/)) {
+                const newsSlug = currentPath.split('/').pop();
+                const newsUrl = '/news/' + newsSlug + '.html';
+
+                const newsLinks = document.querySelectorAll('.news-item-link');
+                let found = false;
+                for (let link of newsLinks) {
+                    if (link.getAttribute('href').includes(newsSlug)) {
+                        loadNews(link.getAttribute('href'), link.querySelector('h3').textContent, false);
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    showContentWithoutHistory('news');
+                }
+            } else if (currentPath.match(/\/tin-tuc\/trang\/\d+/)) {
+                const currentPage = getCurrentPageFromURL();
+                displayNews(currentPage);
+            } else {
+                const sectionId = contentMappings[currentPath] || 'home';
+                showContentWithoutHistory(sectionId);
+            }
+        }
     });
+});
 
 </script>
 </body>
