@@ -1935,14 +1935,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
             
-            // Nếu không tìm thấy tin tức, chuyển hướng về danh sách tin
-            if (!found) {
-                // Khởi tạo trạng thái ban đầu là trang danh sách tin tức
-                showContentWithoutHistory('news');
-                // Cập nhật URL mà không thêm vào lịch sử
-                history.replaceState({ id: 'news' }, 'Tin tức - Vay Online', '/tin-tuc');
-            }
-        } else {
+           
             // Tìm section tương ứng với URL hiện tại
             const sectionId = contentMappings[currentPath] || 'home';
             
@@ -1953,8 +1946,6 @@ document.addEventListener('DOMContentLoaded', function() {
             if (urlMappings[sectionId] && urlMappings[sectionId] !== currentPath) {
                 history.replaceState({ id: sectionId }, document.title, urlMappings[sectionId]);
             }
-        }
-        
         // Khởi tạo trạng thái lịch sử ban đầu
         if (history.state === null) {
             const sectionId = contentMappings[currentPath] || 'home';
@@ -2076,9 +2067,6 @@ document.addEventListener('DOMContentLoaded', function() {
         const existingNewsItems = newsContainer.querySelectorAll('.bg-white');
         const allNewsItems = Array.from(existingNewsItems);
         
-        // Cấu hình phân trang
-        const newsPerPage = 6; // Số tin tức trên mỗi trang
-        const totalPages = Math.ceil(allNewsItems.length / newsPerPage);
         
         // Đảm bảo số trang hợp lệ
         page = Math.max(1, Math.min(page, totalPages));
