@@ -216,14 +216,48 @@
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* thêm đổ bóng nhẹ nếu muốn */
     }
     
-    </style>
-    
+/* Định dạng mặc định cho nội dung tin tức được load động */
+#news-detail-content ul {
+  list-style-type: disc;
+  padding-left: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+#news-detail-content ol {
+  list-style-type: decimal;
+  padding-left: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+#news-detail-content li {
+  margin-bottom: 0.5rem;
+}
+
+#news-detail-content b,
+#news-detail-content strong {
+  font-weight: bold;
+}
+
+#news-detail-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1rem;
+}
+
+#news-detail-content th,
+#news-detail-content td {
+  border: 1px solid #ccc;
+  padding: 0.5rem;
+  text-align: left;
+}
+
+</style>
 </head>
 <body class="bg-gray-100">
     <header class="bg-green-600 text-white p-4 sticky top-0 z-50">
         <div class="container mx-auto flex flex-col items-center text-center md:flex-row md:justify-between md:text-left">
             <div class="flex flex-col items-center md:flex-row md:items-center md:mb-0">
-            <img loading="lazy" src="images/logovay.webp" alt="Giải pháp tài chính linh hoạt" class="h-12 mb-2 md:mb-0 md:mr-4">
+            <img loading="lazy" src="/images/logovay.webp" alt="Giải pháp tài chính linh hoạt" class="h-12 mb-2 md:mb-0 md:mr-4">
             <h1 class="text-xl md:text-2xl font-bold">Giải pháp tài chính linh hoạt</h1>
             </div>
             <nav class="flex flex-nowrap overflow-x-auto justify-center space-x-6 mt-2 md:mt-0">
@@ -661,23 +695,6 @@
       			<button class="bg-green-600 text-white font-semibold py-2 px-4 w-full rounded hover:bg-green-700 transition">VAY ONLINE NGAY</button>
     			</a>
     		      </div>
-		      <div class="bg-white p-4 rounded-lg shadow border border-green-100 relative card-with-new-label">
-  			<img loading="lazy" src="images\homecredit.webp" class="w-24 mx-auto my-2 rounded-lg border border-green-300 p-1">
-  			<h3 class="text-lg font-semibold text-center text-green-700">HOME CREDIT</h3>
-  			<p class="text-center text-sm text-green-600 font-medium">📌 10 PHÚT CÓ TIỀN</p>
-  			<p class="text-center text-lg font-bold text-green-700">10.000.000 – 200.000.000</p>
-  			<ul class="text-sm mt-2 list-disc list-inside text-green-800">
-    			<li>Thời hạn vay: 6 – 57 tháng.</li>
-    			<li>Lãi suất:từ 0,65%/tháng.</li>
-    			<li>Xét duyệt online 3 phút.</li>
-    			<li>Vay < 100tr không cần chứng minh thu nhập.</li>
-    			<li>Hồ sơ: Ưu tiên khách hàng vay cũ Home Credit.</li>
-  			</ul>
-  			<br>
-    			<a href="https://riofin.asia/L9s5b30" rel="nofollow sponsored" target="_blank">
-      			<button class="bg-green-600 text-white font-semibold py-2 px-4 w-full rounded hover:bg-green-700 transition">VAY ONLINE NGAY</button>
-    			</a>
-    		      </div>
 		 </div>
             </div>
 
@@ -757,40 +774,25 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
 
 		     <div class="bg-white p-4 rounded-lg shadow hover:shadow-lg">
-                        <a href="/news/the-tin-dung-CAKE-by-VPBank.html" class="news-item-link" onclick="return loadNews(this.href, this.querySelector('h3').textContent)">
-                            <img loading="lazy" src="/images/Cake_Freedom.webp" alt="Thẻ Tín Dụng CAKE by VPBank – Tiện Lợi, Nhanh Chóng, Nhiều Ưu Đãi" class="w-full h-40 object-cover rounded mb-2">
-                            <h3 class="text-lg font-bold text-gray-800">Thẻ Tín Dụng CAKE by VPBank – Tiện Lợi, Nhanh Chóng, Nhiều Ưu Đãi</h3>
+                        <a href="/news/jeff-ung-dung-vay-tien-uy-tin.html" class="news-item-link" onclick="return loadNews(this.href, this.querySelector('h3').textContent)">
+                            <img loading="lazy" src="/images/jeff-ung-dung-vay-tien-uy-tin.webp" alt="Jeff - Ứng dụng vay tiền nhanh uy tín, giải ngân trong vài phút" class="w-full h-40 object-cover rounded mb-2">
+                            <h3 class="text-lg font-bold text-gray-800">Jeff - Ứng dụng vay tiền nhanh uy tín, giải ngân trong vài phút</h3>
                         </a>
                      </div>
 
 		     <div class="bg-white p-4 rounded-lg shadow hover:shadow-lg">
-                        <a href="/news/the-tin-dung-CAKE-by-VPBank.html" class="news-item-link" onclick="return loadNews(this.href, this.querySelector('h3').textContent)">
-                            <img loading="lazy" src="/images/Cake_Freedom.webp" alt="Thẻ Tín Dụng CAKE by VPBank – Tiện Lợi, Nhanh Chóng, Nhiều Ưu Đãi" class="w-full h-40 object-cover rounded mb-2">
-                            <h3 class="text-lg font-bold text-gray-800">Thẻ Tín Dụng CAKE by VPBank – Tiện Lợi, Nhanh Chóng, Nhiều Ưu Đãi</h3>
+                        <a href="/news/vay-app-den-la-gi.html" class="news-item-link" onclick="return loadNews(this.href, this.querySelector('h3').textContent)">
+                            <img loading="lazy" src="/images/vay-app-den-la-gi.webp" alt="Vay App Đen Là Gì? Vì Sao Nên Tránh Xa Các App Vay Tiền Đen?" class="w-full h-40 object-cover rounded mb-2">
+                            <h3 class="text-lg font-bold text-gray-800">Vay App Đen Là Gì? Vì Sao Nên Tránh Xa Các App Vay Tiền Đen?</h3>
                         </a>
                      </div>
 
 		     <div class="bg-white p-4 rounded-lg shadow hover:shadow-lg">
-                        <a href="/news/the-tin-dung-CAKE-by-VPBank.html" class="news-item-link" onclick="return loadNews(this.href, this.querySelector('h3').textContent)">
-                            <img loading="lazy" src="/images/Cake_Freedom.webp" alt="Thẻ Tín Dụng CAKE by VPBank – Tiện Lợi, Nhanh Chóng, Nhiều Ưu Đãi" class="w-full h-40 object-cover rounded mb-2">
-                            <h3 class="text-lg font-bold text-gray-800">Thẻ Tín Dụng CAKE by VPBank – Tiện Lợi, Nhanh Chóng, Nhiều Ưu Đãi</h3>
+                        <a href="/news/vayvnd-danh-gia-2025.html" class="news-item-link" onclick="return loadNews(this.href, this.querySelector('h3').textContent)">
+                            <img loading="lazy" src="/images/vayvnd-danh-gia-2025.webp" alt="VayVND là gì? Đánh giá chi tiết ứng dụng vay tiền online VayVND 2025" class="w-full h-40 object-cover rounded mb-2">
+                            <h3 class="text-lg font-bold text-gray-800">VayVND là gì? Đánh giá chi tiết ứng dụng vay tiền online VayVND 2025</h3>
                         </a>
                      </div>
-
-		     <div class="bg-white p-4 rounded-lg shadow hover:shadow-lg">
-                        <a href="/news/the-tin-dung-CAKE-by-VPBank.html" class="news-item-link" onclick="return loadNews(this.href, this.querySelector('h3').textContent)">
-                            <img loading="lazy" src="/images/Cake_Freedom.webp" alt="Thẻ Tín Dụng CAKE by VPBank – Tiện Lợi, Nhanh Chóng, Nhiều Ưu Đãi" class="w-full h-40 object-cover rounded mb-2">
-                            <h3 class="text-lg font-bold text-gray-800">Thẻ Tín Dụng CAKE by VPBank – Tiện Lợi, Nhanh Chóng, Nhiều Ưu Đãi</h3>
-                        </a>
-                     </div>
-
-		     <div class="bg-white p-4 rounded-lg shadow hover:shadow-lg">
-                        <a href="/news/the-tin-dung-CAKE-by-VPBank.html" class="news-item-link" onclick="return loadNews(this.href, this.querySelector('h3').textContent)">
-                            <img loading="lazy" src="/images/Cake_Freedom.webp" alt="Thẻ Tín Dụng CAKE by VPBank – Tiện Lợi, Nhanh Chóng, Nhiều Ưu Đãi" class="w-full h-40 object-cover rounded mb-2">
-                            <h3 class="text-lg font-bold text-gray-800">Thẻ Tín Dụng CAKE by VPBank – Tiện Lợi, Nhanh Chóng, Nhiều Ưu Đãi</h3>
-                        </a>
-                     </div>
-
 
 		     <div class="bg-white p-4 rounded-lg shadow hover:shadow-lg">
                         <a href="/news/the-tin-dung-CAKE-by-VPBank.html" class="news-item-link" onclick="return loadNews(this.href, this.querySelector('h3').textContent)">
@@ -988,6 +990,33 @@
     	 <h3 class="text-lg font-semibold mb-4">BÀI VIẾT MỚI NHẤT</h3>
     	 <ul class="space-y-4">
 
+         <li class="flex items-center gap-3">
+            <img loading="lazy" src="/images/jeff-ung-dung-vay-tien-uy-tin.webp" alt="Jeff - Ứng dụng vay tiền nhanh uy tín, giải ngân trong vài phút" class="w-16 h-12 object-cover rounded" />
+            <a href="/news/jeff-ung-dung-vay-tien-uy-tin.html"
+                class="text-blue-600 hover:underline flex-1"
+                onclick="return loadNews(this.href, 'Jeff - Ứng dụng vay tiền nhanh uy tín, giải ngân trong vài phút')">
+                Jeff - Ứng dụng vay tiền nhanh uy tín, giải ngân trong vài phút
+            </a>
+         </li>
+
+         <li class="flex items-center gap-3">
+            <img loading="lazy" src="/images/vay-app-den-la-gi.webp" alt="Vay App Đen Là Gì? Vì Sao Nên Tránh Xa Các App Vay Tiền Đen?" class="w-16 h-12 object-cover rounded" />
+            <a href="/news/vay-app-den-la-gi.html"
+                class="text-blue-600 hover:underline flex-1"
+                onclick="return loadNews(this.href, 'Vay App Đen Là Gì? Vì Sao Nên Tránh Xa Các App Vay Tiền Đen?')">
+                Vay App Đen Là Gì? Vì Sao Nên Tránh Xa Các App Vay Tiền Đen?
+            </a>
+         </li>
+
+         <li class="flex items-center gap-3">
+            <img loading="lazy" src="/images/vayvnd-danh-gia-2025.webp" alt="VayVND là gì? Đánh giá chi tiết ứng dụng vay tiền online VayVND 2025" class="w-16 h-12 object-cover rounded" />
+            <a href="/news/vayvnd-danh-gia-2025.html"
+                class="text-blue-600 hover:underline flex-1"
+                onclick="return loadNews(this.href, 'VayVND là gì? Đánh giá chi tiết ứng dụng vay tiền online VayVND 2025')">
+                VayVND là gì? Đánh giá chi tiết ứng dụng vay tiền online VayVND 2025
+            </a>
+         </li>
+
 	  <li class="flex items-center gap-3">
             <img loading="lazy" src="/images/Cake_Freedom.webp" alt="Thẻ Tín Dụng CAKE by VPBank – Tiện Lợi, Nhanh Chóng, Nhiều Ưu Đãi" class="w-16 h-12 object-cover rounded" />
             <a href="/news/the-tin-dung-CAKE-by-VPBank.html"
@@ -1036,10 +1065,12 @@
     <div class="text-center mt-4 text-gray-400">&copy; 2025 vay24h.pro.vn. All rights reserved.</div>
 </footer>
 
+
 <!-- cuộn về đầu trang -->
 <script>
-  document.addEventListener("DOMContentLoaded", () => {
-    document.querySelectorAll("nav a, footer a, div a, li a").forEach(link => {
+
+document.addEventListener("DOMContentLoaded", () => {
+    document.querySelectorAll("nav a, footer a, aside a").forEach(link => {
       link.addEventListener("click", () => {
         window.scrollTo({ top: 0, behavior: "smooth" });
       });
@@ -1377,7 +1408,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// Phân Trang với URL động
+// Phân Trang với URL động và tối ưu SEO
 document.addEventListener('DOMContentLoaded', function() {
     // Kiểm tra xem container tin tức có tồn tại không
     const newsContainer = document.querySelector('#news .grid');
@@ -1445,11 +1476,69 @@ document.addEventListener('DOMContentLoaded', function() {
             document.title = pageTitle;
         }
         
+        // Cập nhật thẻ meta description cho SEO
+        updateMetaDescription(page);
+        
+        // Cập nhật thẻ canonical
+        updateCanonicalLink(page);
+        
         // Cuộn lên đầu phần tin tức
         document.getElementById('news').scrollIntoView({ behavior: 'smooth' });
     }
+    
+    // Hàm cập nhật thẻ meta description cho SEO
+    function updateMetaDescription(page) {
+        let metaDescription = document.querySelector('meta[name="description"]');
+        if (!metaDescription) {
+            metaDescription = document.createElement('meta');
+            metaDescription.setAttribute('name', 'description');
+            document.head.appendChild(metaDescription);
+        }
+        
+        const descriptionText = `Tin tức mới nhất về vay trực tuyến - Trang ${page} - Cập nhật thông tin lãi suất, điều kiện vay và các chương trình ưu đãi mới nhất.`;
+        metaDescription.setAttribute('content', descriptionText);
+    }
+    
+    // Hàm cập nhật thẻ canonical
+    function updateCanonicalLink(page) {
+        // Xóa canonical cũ nếu có
+        const existingCanonical = document.querySelector('link[rel="canonical"]');
+        if (existingCanonical) {
+            existingCanonical.remove();
+        }
+        
+        // Tạo canonical mới
+        const canonicalUrl = window.location.origin + (page === 1 ? '/tin-tuc' : `/tin-tuc/trang-${page}`);
+        const canonicalLink = document.createElement('link');
+        canonicalLink.rel = 'canonical';
+        canonicalLink.href = canonicalUrl;
+        document.head.appendChild(canonicalLink);
+    }
+    
+    // Thêm các liên kết rel="prev" và rel="next" cho việc phân trang SEO
+    function updatePrevNextLinks(page) {
+        // Xóa các liên kết cũ
+        const existingLinks = document.querySelectorAll('link[rel="prev"], link[rel="next"]');
+        existingLinks.forEach(link => link.remove());
+        
+        // Thêm liên kết "prev" nếu không phải trang đầu tiên
+        if (page > 1) {
+            const prevLink = document.createElement('link');
+            prevLink.rel = 'prev';
+            prevLink.href = window.location.origin + (page === 2 ? '/tin-tuc' : `/tin-tuc/trang-${page - 1}`);
+            document.head.appendChild(prevLink);
+        }
+        
+        // Thêm liên kết "next" nếu không phải trang cuối cùng
+        if (page < totalPages) {
+            const nextLink = document.createElement('link');
+            nextLink.rel = 'next';
+            nextLink.href = window.location.origin + `/tin-tuc/trang-${page + 1}`;
+            document.head.appendChild(nextLink);
+        }
+    }
 
-    // Hàm tạo các nút phân trang với Tailwind CSS
+    // Hàm tạo các nút phân trang với Tailwind CSS và tối ưu SEO
     function createPagination(currentPage) {
         // Xóa phân trang cũ
         paginationContainer.innerHTML = '';
@@ -1459,12 +1548,17 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
         
+        // Cập nhật thẻ prev/next cho SEO
+        updatePrevNextLinks(currentPage);
+        
         // Tạo nút "Trước" nếu không phải trang đầu tiên
         if (currentPage > 1) {
             const prevButton = document.createElement('a');
-            prevButton.href = '#news';
+            const prevUrl = currentPage === 2 ? '/tin-tuc' : `/tin-tuc/trang-${currentPage - 1}`;
+            prevButton.href = prevUrl;
             prevButton.className = 'px-3 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition';
             prevButton.textContent = 'Trước';
+            prevButton.setAttribute('rel', 'prev');
             
             prevButton.addEventListener('click', function(e) {
                 e.preventDefault();
@@ -1474,14 +1568,17 @@ document.addEventListener('DOMContentLoaded', function() {
             paginationContainer.appendChild(prevButton);
         }
         
-        // Tạo các nút số trang (1, 2, 3...)
+        // Tạo các nút số trang với URL tĩnh (1, 2, 3...)
         for (let i = 1; i <= totalPages; i++) {
             const pageLink = document.createElement('a');
-            pageLink.href = '#news';
+            // URL tĩnh cho các trang
+            const pageUrl = i === 1 ? '/tin-tuc' : `/tin-tuc/trang-${i}`;
+            pageLink.href = pageUrl;
             
             // Áp dụng style khác cho trang hiện tại
             if (i === currentPage) {
                 pageLink.className = 'px-3 py-2 bg-blue-600 text-white rounded';
+                pageLink.setAttribute('aria-current', 'page');
             } else {
                 pageLink.className = 'px-3 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition';
             }
@@ -1499,9 +1596,10 @@ document.addEventListener('DOMContentLoaded', function() {
         // Tạo nút "Sau" nếu không phải trang cuối
         if (currentPage < totalPages) {
             const nextButton = document.createElement('a');
-            nextButton.href = '#news';
+            nextButton.href = `/tin-tuc/trang-${currentPage + 1}`;
             nextButton.className = 'px-3 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition';
             nextButton.textContent = 'Sau';
+            nextButton.setAttribute('rel', 'next');
             
             nextButton.addEventListener('click', function(e) {
                 e.preventDefault();
@@ -1564,8 +1662,66 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
+
+    // Thêm phần tạo nội dung tĩnh cho bộ máy tìm kiếm
+    function createStaticContentForSEO() {
+        // Kiểm tra nếu đang là trang phân trang tin tức
+        const pageMatcher = window.location.pathname.match(/\/tin-tuc\/trang-(\d+)/);
+        if (pageMatcher || window.location.pathname === '/tin-tuc') {
+            const page = pageMatcher ? parseInt(pageMatcher[1], 10) : 1;
+            
+            // Tính toán phạm vi tin tức cần hiển thị
+            const startIndex = (page - 1) * newsPerPage;
+            const endIndex = Math.min(startIndex + newsPerPage, allNewsItems.length);
+            
+            // Tạo một container ẩn để chứa nội dung dành cho SEO
+            let seoContainer = document.getElementById('seo-content');
+            if (!seoContainer) {
+                seoContainer = document.createElement('div');
+                seoContainer.id = 'seo-content';
+                seoContainer.setAttribute('aria-hidden', 'true');
+                seoContainer.style.display = 'none';
+                document.body.appendChild(seoContainer);
+            }
+            
+            // Thêm nội dung dành cho SEO
+            let seoContent = `<h1>Tin tức mới nhất - Trang ${page}</h1>`;
+            
+            // Thêm nội dung từ các tin tức trên trang hiện tại
+            for (let i = startIndex; i < endIndex; i++) {
+                if (allNewsItems[i]) {
+                    const newsTitle = allNewsItems[i].querySelector('h3')?.textContent || '';
+                    const newsDesc = allNewsItems[i].querySelector('p')?.textContent || '';
+                    seoContent += `<article><h2>${newsTitle}</h2><p>${newsDesc}</p></article>`;
+                }
+            }
+            
+            // Thêm liên kết phân trang (để bot có thể theo dõi)
+            seoContent += '<div class="pagination-links">';
+            if (page > 1) {
+                const prevUrl = page === 2 ? '/tin-tuc' : `/tin-tuc/trang-${page - 1}`;
+                seoContent += `<a href="${prevUrl}" rel="prev">Trang trước</a>`;
+            }
+            
+            for (let i = 1; i <= totalPages; i++) {
+                const pageUrl = i === 1 ? '/tin-tuc' : `/tin-tuc/trang-${i}`;
+                seoContent += `<a href="${pageUrl}"${i === page ? ' aria-current="page"' : ''}>${i}</a>`;
+            }
+            
+            if (page < totalPages) {
+                seoContent += `<a href="/tin-tuc/trang-${page + 1}" rel="next">Trang sau</a>`;
+            }
+            seoContent += '</div>';
+            
+            seoContainer.innerHTML = seoContent;
+        }
+    }
+    
+    // Gọi hàm tạo nội dung tĩnh cho SEO
+    createStaticContentForSEO();
 });
 
 </script>
+
 </body>
 </html>
