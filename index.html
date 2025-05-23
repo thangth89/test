@@ -1282,6 +1282,9 @@ function loadNews(url, title, addToHistory = true) {
             document.getElementById('news-detail-content').innerHTML = '';
             document.getElementById('news-detail-content').appendChild(content.cloneNode(true));
             document.getElementById('news-title').textContent = title;
+		
+	    // Cuộn lên đầu trang
+            window.scrollTo({ top: 0, behavior: 'smooth' });
             
             // Cập nhật tiêu đề trang
             document.title = title + ' - Vay Online';
