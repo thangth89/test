@@ -1507,7 +1507,7 @@ document.addEventListener('DOMContentLoaded', function() {
         updateCanonicalLink(page);
         
         // Cuộn lên đầu phần tin tức
-        document.getElementById('news').scrollIntoView({ behavior: 'smooth' });
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
     
     // Hàm cập nhật thẻ meta description cho SEO
